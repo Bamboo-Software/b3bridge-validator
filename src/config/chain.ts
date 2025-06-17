@@ -29,24 +29,42 @@ interface ITokenMap {
   address: string;
 }
 
+export const ethTokenAddressConfig = {
+  ETH:
+    process.env.ETH_TOKEN_ADDRESS_ETH ||
+    '0x0000000000000000000000000000000000000000',
+  USDC:
+    process.env.ETH_TOKEN_ADDRESS_USDC ||
+    '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+};
+
+export const seiTokenAddressConfig = {
+  wETH:
+    process.env.SEI_TOKEN_ADDRESS_W_ETH ||
+    '0xe7Fd15568E498c7e62E8397597c23fA6e008189C',
+  wUSDC:
+    process.env.SEI_TOKEN_ADDRESS_W_USDC ||
+    '0x12CD8503ECBd48B4c3F920c48565a56c328207E4',
+};
+
 export const seiTokenMapperConfig: Record<string, ITokenMap> = {
-  '0x1c7d4b196cb0c7b01d743fbc6116a902379c7238': {
-    address: '0x12CD8503ECBd48B4c3F920c48565a56c328207E4',
+  [seiTokenAddressConfig.wUSDC]: {
+    address: ethTokenAddressConfig.USDC,
     type: 1,
   },
-  '0x0000000000000000000000000000000000000000': {
-    address: '0xe7Fd15568E498c7e62E8397597c23fA6e008189C',
+  [seiTokenAddressConfig.wETH]: {
+    address: ethTokenAddressConfig.ETH,
     type: 0,
   },
 };
 
 export const ethTokenMapperConfig: Record<string, ITokenMap> = {
-  '0x12CD8503ECBd48B4c3F920c48565a56c328207E4': {
-    address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+  [ethTokenAddressConfig.USDC]: {
+    address: seiTokenAddressConfig.wUSDC,
     type: 1,
   },
-  '0xe7Fd15568E498c7e62E8397597c23fA6e008189C': {
-    address: '0x0000000000000000000000000000000000000000',
+  [ethTokenAddressConfig.ETH]: {
+    address: seiTokenAddressConfig.wETH,
     type: 0,
   },
 };

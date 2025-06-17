@@ -125,6 +125,12 @@
                 "internalType": "address",
                 "name": "wTokenAddress",
                 "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "destWalletAddress",
+                "type": "address"
             }
         ],
         "name": "BurnTokenVL",
@@ -388,6 +394,11 @@
                 "internalType": "address",
                 "name": "wTokenAddress",
                 "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "destWalletAddress",
+                "type": "address"
             }
         ],
         "name": "burnTokenVL",
@@ -485,25 +496,6 @@
         "type": "function"
     },
     {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "user",
-                "type": "address"
-            }
-        ],
-        "name": "getNonce",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
         "inputs": [],
         "name": "getRouter",
         "outputs": [
@@ -580,11 +572,6 @@
                         "internalType": "uint8",
                         "name": "tokenType",
                         "type": "uint8"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "nonce",
-                        "type": "uint256"
                     }
                 ],
                 "internalType": "struct B3BridgeDest.Payload",
@@ -595,25 +582,6 @@
         "name": "mintTokenVL",
         "outputs": [],
         "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "name": "nonces",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -668,11 +636,6 @@
                 "internalType": "uint8",
                 "name": "tokenType",
                 "type": "uint8"
-            },
-            {
-                "internalType": "uint256",
-                "name": "nonce",
-                "type": "uint256"
             }
         ],
         "stateMutability": "view",

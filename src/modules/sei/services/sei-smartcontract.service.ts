@@ -10,7 +10,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import Web3, { Contract, ContractAbi, SignResult, Web3Account } from 'web3';
-import { ethTokenMapperConfig, seiChainConfig, seiValidatorConfig } from '../../../config';
+import {
+  ethTokenMapperConfig,
+  seiChainConfig,
+  seiTokenMapperConfig,
+  seiValidatorConfig,
+} from '../../../config';
 import { readFileSync } from 'fs';
 import { EthSmartcontractService } from '../../eth/services/eth-smartcontract.service';
 
@@ -37,8 +42,10 @@ export class SeiSmartcontractService {
       this.validator = this.web3.eth.accounts.privateKeyToAccount(
         seiValidatorConfig.privateKey,
       );
-      this.logger.log('validator address: ' + this.validator.address);
       this.web3.eth.accounts.wallet.add(this.validator);
+      this.logger.log('validator address: ' + this.validator.address);
+    } else {
+      this.logger.warn('validator not found');
     }
 
     this.contract = new this.web3.eth.Contract(
@@ -64,6 +71,13 @@ export class SeiSmartcontractService {
       .on('data', (event) => {
         this.onBurnTokenVL(event);
       });
+  }
+
+  async callReadContractMethod(method: string, ...args: any[]) {
+    if (!this.contract.methods[method]) {
+      throw new NotFoundException('Not found method: ' + method);
+    }
+    return this.contract.methods[method](...args).call();
   }
 
   async callWriteContractMethod(method: string, ...args: any[]) {
@@ -99,8 +113,8 @@ export class SeiSmartcontractService {
     );
 
     this.logger.log(
-      `callWriteContractMethod ${method} successed! Transaction Hash:` +
-      receipt.transactionHash,
+      `callWriteContractMethod ${method} successed! Transaction Hash: ` +
+        receipt.transactionHash,
     );
     return receipt;
   }
@@ -115,12 +129,13 @@ export class SeiSmartcontractService {
       'onBurnTokenVL signResult.signature: ' + signResult.signature,
     );
     const wTokenAddress = event.returnValues.wTokenAddress;
-    const tokenMap = ethTokenMapperConfig[wTokenAddress] || null;
+    const tokenMap = seiTokenMapperConfig[wTokenAddress] || null;
     if (!tokenMap) {
       this.logger.warn('onBurnTokenVL tokenMap not found');
       return false;
     }
     args.push(signResult.signature);
+    // const nonce = await this.ethSmartcontractService.nonces();
     const payload = {
       txKey: txHash,
       from: event.returnValues.sender,
@@ -129,7 +144,7 @@ export class SeiSmartcontractService {
       // tokenAddr: '0x42B4fdB1888001BB4C06f8BaFfB8a96B56693614', // tokenType =1
       amount: event.returnValues.amount,
       tokenType: tokenMap.type,
-      nonce: 1,
+      // nonce: nonce + 1,
     };
     args.push(payload);
     return this.ethSmartcontractService.unLockTokenVL(...args);
@@ -149,5 +164,15 @@ export class SeiSmartcontractService {
     const messageHash = message; // this.web3.utils.keccak256(message);
     const signResult = this.validator.sign(messageHash);
     return signResult;
+  }
+
+  async getNonce() {
+    const addr = this.validator.address;
+    if (!this.contract.methods.nonces) {
+      throw new NotFoundException('Invalid method nonces');
+    }
+    const nonce = await this.callReadContractMethod('getNonce', addr);
+    this.logger.log(`nonce of address ${addr}`, nonce);
+    return Number(nonce);
   }
 }
