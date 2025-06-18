@@ -25,35 +25,74 @@ export class EthSmartcontractService {
   private web3: Web3;
   private validator: Web3Account;
   private readonly logger = new Logger(EthSmartcontractService.name);
+
+  private reconnectInterval = 3000;
+  private reconnecting = false;
+
   constructor(
     @Inject(forwardRef(() => SeiSmartcontractService))
     private readonly seiSmartcontractService: SeiSmartcontractService,
   ) {
-    const contractABIString = readFileSync(
-      ethChainConfig.contractABIPath,
-      'utf8',
-    );
-    const contractABI = JSON.parse(contractABIString);
-    this.web3 = new Web3(
-      new Web3.providers.WebsocketProvider(ethChainConfig.wsUrl),
+    this.initWeb3();
+  }
+
+  private initWeb3() {
+    this.logger.log('Initializing Web3 WebSocket provider...');
+
+    const wsProvider = new Web3.providers.WebsocketProvider(
+      ethChainConfig.wsUrl,
     );
 
+    wsProvider.on('connect', () => {
+      this.logger.log('WebSocket connected');
+    });
+
+    wsProvider.on('error', (e) => {
+      this.logger.error('WebSocket error', e);
+      this.reconnect(); // bạn đã viết hàm reconnect()
+    });
+
+    wsProvider.on('end', (e) => {
+      this.logger.warn('WebSocket closed', e);
+      this.reconnect();
+    });
+
+    this.web3 = new Web3(wsProvider);
+
+    // Thêm validator
     if (ethValidatorConfig.privateKey) {
       this.validator = this.web3.eth.accounts.privateKeyToAccount(
         ethValidatorConfig.privateKey,
       );
       this.web3.eth.accounts.wallet.add(this.validator);
-      this.logger.log('validator address: ' + this.validator.address);
+      this.logger.log('Validator address: ' + this.validator.address);
     } else {
-      this.logger.warn('validator not found');
+      this.logger.warn('Validator not found');
     }
 
+    // Load lại contract
+    const contractABIString = readFileSync(
+      ethChainConfig.contractABIPath,
+      'utf8',
+    );
+    const contractABI = JSON.parse(contractABIString);
     this.contract = new this.web3.eth.Contract(
       contractABI,
       ethChainConfig.contractAddress,
     );
 
+    // Lắng nghe event
     this.listenToEvents();
+  }
+
+  private reconnect() {
+    if (this.reconnecting) return;
+    this.reconnecting = true;
+    this.logger.warn('Reconnecting WebSocket in 5s...');
+    setTimeout(() => {
+      this.initWeb3();
+      this.reconnecting = false;
+    }, this.reconnectInterval);
   }
 
   listenToEvents() {
