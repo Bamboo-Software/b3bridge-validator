@@ -29,6 +29,8 @@ export class EthSmartcontractService {
   private reconnectInterval = 3000;
   private reconnecting = false;
 
+  private subscription;
+
   constructor(
     @Inject(forwardRef(() => SeiSmartcontractService))
     private readonly seiSmartcontractService: SeiSmartcontractService,
@@ -96,15 +98,18 @@ export class EthSmartcontractService {
   }
 
   listenToEvents() {
-    // this.contract.events
-    //   .allEvents({
-    //     fromBlock: 'latest',
-    //   })
-    //   .on('data', (event) => {
-    //     this.logger.debug('listenToEvents event', event);
-    //   });
+    if (this.subscription) {
+      this.subscription?.unsubscribe?.((err, success) => {
+        if (success) {
+          this.logger.log('[SUB] Unsubscribed successfully');
+        } else if (err) {
+          this.logger.log('[SUB] Unsubscribed error: ' + err?.message);
+        }
+      });
+      this.subscription = null;
+    }
 
-    this.contract.events
+    this.subscription = this.contract.events
       .LockedTokenVL?.({
         fromBlock: 'latest',
       })
@@ -154,41 +159,46 @@ export class EthSmartcontractService {
 
     this.logger.log(
       `callWriteContractMethod ${method} successed! Transaction Hash: ` +
-        receipt.transactionHash,
+      receipt.transactionHash,
     );
     return receipt;
   }
 
   async onLockedTokenVL(event: any) {
-    this.logger.log('onLockedTokenVL event', event);
-    // call mintToken wETH on sei
-    const args: any[] = [];
-    const txHash = event.transactionHash;
-    const signResult = this.seiSmartcontractService.signMessage(txHash);
-    this.logger.log(
-      'onLockedTokenVL signResult.signature: ' + signResult.signature,
-    );
-    const tokenAddr =
-      event.returnValues.tokenAddr || event.returnValues.tokenSymbol;
-    const tokenMap = ethTokenMapperConfig[tokenAddr] || null;
-    if (!tokenMap) {
-      this.logger.warn('onLockedTokenVL tokenMap not found');
-      return false;
+    try {
+      this.logger.log('onLockedTokenVL event', event);
+      // call mintToken wETH on sei
+      const args: any[] = [];
+      const txHash = event.transactionHash;
+      const signResult = this.seiSmartcontractService.signMessage(txHash);
+      this.logger.log(
+        'onLockedTokenVL signResult.signature: ' + signResult.signature,
+      );
+      const tokenAddr =
+        event.returnValues.tokenAddr || event.returnValues.tokenSymbol;
+      const tokenMap = ethTokenMapperConfig[tokenAddr] || null;
+      if (!tokenMap) {
+        this.logger.warn('onLockedTokenVL tokenMap not found');
+        return false;
+      }
+      args.push(signResult.signature);
+      // const nonce = await this.seiSmartcontractService.getNonce();
+      const payload = {
+        txKey: txHash,
+        from: event.returnValues.sender,
+        to: event.returnValues.destWalletAddress,
+        tokenAddr: tokenMap.address, // tokenType = 0
+        // tokenAddr: '0x42B4fdB1888001BB4C06f8BaFfB8a96B56693614', // tokenType =1
+        amount: event.returnValues.amount,
+        tokenType: tokenMap.type,
+        // nonce: nonce + 1,
+      };
+      args.push(payload);
+      return this.seiSmartcontractService.mintTokenVL(...args);
+    } catch (error) {
+      this.logger.error('onLockedTokenVL err: ' + error.message);
     }
-    args.push(signResult.signature);
-    // const nonce = await this.seiSmartcontractService.getNonce();
-    const payload = {
-      txKey: txHash,
-      from: event.returnValues.sender,
-      to: event.returnValues.destWalletAddress,
-      tokenAddr: tokenMap.address, // tokenType = 0
-      // tokenAddr: '0x42B4fdB1888001BB4C06f8BaFfB8a96B56693614', // tokenType =1
-      amount: event.returnValues.amount,
-      tokenType: tokenMap.type,
-      // nonce: nonce + 1,
-    };
-    args.push(payload);
-    return this.seiSmartcontractService.mintTokenVL(...args);
+
   }
 
   async unLockTokenVL(...args: any[]) {

@@ -28,6 +28,8 @@ export class SeiSmartcontractService {
   private reconnectInterval = 3000;
   private reconnecting = false;
 
+  private subscription;
+
   constructor(
     @Inject(forwardRef(() => EthSmartcontractService))
     private readonly ethSmartcontractService: EthSmartcontractService,
@@ -57,7 +59,6 @@ export class SeiSmartcontractService {
     });
 
     this.web3 = new Web3(wsProvider);
-
     // Thêm validator
     if (seiValidatorConfig.privateKey) {
       this.validator = this.web3.eth.accounts.privateKeyToAccount(
@@ -95,14 +96,18 @@ export class SeiSmartcontractService {
   }
 
   listenToEvents() {
-    // this.contract.events
-    //   .allEvents({
-    //     fromBlock: 'latest',
-    //   })
-    //   .on('data', (event) => {
-    //     this.logger.debug('listenToEvents event', event);
-    //   });
-    this.contract.events
+    if (this.subscription) {
+      this.subscription?.unsubscribe?.((err, success) => {
+        if (success) {
+          this.logger.log('[SUB] Unsubscribed successfully');
+        } else if (err) {
+          this.logger.log('[SUB] Unsubscribed error: ' + err?.message);
+        }
+      });
+      this.subscription = null;
+    }
+
+    this.subscription = this.contract.events
       .BurnTokenVL?.({
         fromBlock: 'latest',
       })
@@ -152,40 +157,44 @@ export class SeiSmartcontractService {
 
     this.logger.log(
       `callWriteContractMethod ${method} successed! Transaction Hash: ` +
-        receipt.transactionHash,
+      receipt.transactionHash,
     );
     return receipt;
   }
 
   async onBurnTokenVL(event: any) {
     this.logger.log('onBurnTokenVL event', event);
-    // call unLockToken on eth
-    const args: any[] = [];
-    const txHash = event.transactionHash;
-    const signResult = this.ethSmartcontractService.signMessage(txHash);
-    this.logger.log(
-      'onBurnTokenVL signResult.signature: ' + signResult.signature,
-    );
-    const wTokenAddress = event.returnValues.wTokenAddress;
-    const tokenMap = seiTokenMapperConfig[wTokenAddress] || null;
-    if (!tokenMap) {
-      this.logger.warn('onBurnTokenVL tokenMap not found');
-      return false;
+    try {
+      // call unLockToken on eth
+      const args: any[] = [];
+      const txHash = event.transactionHash;
+      const signResult = this.ethSmartcontractService.signMessage(txHash);
+      this.logger.log(
+        'onBurnTokenVL signResult.signature: ' + signResult.signature,
+      );
+      const wTokenAddress = event.returnValues.wTokenAddress;
+      const tokenMap = seiTokenMapperConfig[wTokenAddress] || null;
+      if (!tokenMap) {
+        this.logger.warn('onBurnTokenVL tokenMap not found');
+        return false;
+      }
+      args.push(signResult.signature);
+      // const nonce = await this.ethSmartcontractService.nonces();
+      const payload = {
+        txKey: txHash,
+        from: event.returnValues.sender,
+        to: event.returnValues.destWalletAddress,
+        tokenAddr: tokenMap.address, // tokenType = 0
+        // tokenAddr: '0x42B4fdB1888001BB4C06f8BaFfB8a96B56693614', // tokenType =1
+        amount: event.returnValues.amount,
+        tokenType: tokenMap.type,
+        // nonce: nonce + 1,
+      };
+      args.push(payload);
+      return this.ethSmartcontractService.unLockTokenVL(...args);
+    } catch (error) {
+      this.logger.error('onBurnTokenVL err: ' + error.message);
     }
-    args.push(signResult.signature);
-    // const nonce = await this.ethSmartcontractService.nonces();
-    const payload = {
-      txKey: txHash,
-      from: event.returnValues.sender,
-      to: event.returnValues.destWalletAddress,
-      tokenAddr: tokenMap.address, // tokenType = 0
-      // tokenAddr: '0x42B4fdB1888001BB4C06f8BaFfB8a96B56693614', // tokenType =1
-      amount: event.returnValues.amount,
-      tokenType: tokenMap.type,
-      // nonce: nonce + 1,
-    };
-    args.push(payload);
-    return this.ethSmartcontractService.unLockTokenVL(...args);
   }
 
   async mintTokenVL(...args: any[]) {
