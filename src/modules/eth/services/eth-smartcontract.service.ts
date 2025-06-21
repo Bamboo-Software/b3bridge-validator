@@ -45,8 +45,12 @@ export class EthSmartcontractService {
       ethChainConfig.wsUrl,
     );
 
-    wsProvider.on('connect', () => {
-      this.logger.log('WebSocket connected');
+    wsProvider.on('connect', (evt) => {
+      this.logger.log('WebSocket connected chainId: ' + evt.chainId);
+    });
+
+    wsProvider.on('disconnect', (evt) => {
+      this.logger.log('WebSocket disconnected with message: ' + evt.message);
     });
 
     wsProvider.on('error', (e) => {
@@ -109,13 +113,14 @@ export class EthSmartcontractService {
       this.subscription = null;
     }
 
-    this.subscription = this.contract.events
-      .LockedTokenVL?.({
-        fromBlock: 'latest',
-      })
-      .on('data', (event) => {
-        this.onLockedTokenVL(event);
-      });
+    this.subscription = this.contract.events.LockedTokenVL?.({
+      fromBlock: 'latest',
+    });
+    this.subscription?.on('data', async (event) => this.onLockedTokenVL(event));
+    this.subscription?.on('error', (err) =>
+      this.logger.log('LockedTokenVL on error' + err?.message, err),
+    );
+    // this.logger.log('listenToEvents subscription: ', this.subscription);
   }
 
   async callReadContractMethod(method: string, ...args: any[]) {
@@ -159,7 +164,7 @@ export class EthSmartcontractService {
 
     this.logger.log(
       `callWriteContractMethod ${method} successed! Transaction Hash: ` +
-      receipt.transactionHash,
+        receipt.transactionHash,
     );
     return receipt;
   }
@@ -198,7 +203,6 @@ export class EthSmartcontractService {
     } catch (error) {
       this.logger.error('onLockedTokenVL err: ' + error.message);
     }
-
   }
 
   async unLockTokenVL(...args: any[]) {

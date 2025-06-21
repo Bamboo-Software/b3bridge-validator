@@ -44,8 +44,12 @@ export class SeiSmartcontractService {
       seiChainConfig.wsUrl,
     );
 
-    wsProvider.on('connect', () => {
-      this.logger.log('WebSocket connected');
+    wsProvider.on('connect', (evt) => {
+      this.logger.log('WebSocket connected chainId: ' + evt.chainId);
+    });
+
+    wsProvider.on('disconnect', (evt) => {
+      this.logger.log('WebSocket disconnected with message: ' + evt.message);
     });
 
     wsProvider.on('error', (e) => {
@@ -107,13 +111,13 @@ export class SeiSmartcontractService {
       this.subscription = null;
     }
 
-    this.subscription = this.contract.events
-      .BurnTokenVL?.({
-        fromBlock: 'latest',
-      })
-      .on('data', (event) => {
-        this.onBurnTokenVL(event);
-      });
+    this.subscription = this.contract.events.BurnTokenVL?.({
+      fromBlock: 'latest',
+    });
+    this.subscription?.on('data', async (event) => this.onBurnTokenVL(event));
+    this.subscription?.on('error', (err) =>
+      this.logger.log('BurnTokenVL on error: ' + err?.message, err),
+    );
   }
 
   async callReadContractMethod(method: string, ...args: any[]) {
@@ -157,7 +161,7 @@ export class SeiSmartcontractService {
 
     this.logger.log(
       `callWriteContractMethod ${method} successed! Transaction Hash: ` +
-      receipt.transactionHash,
+        receipt.transactionHash,
     );
     return receipt;
   }
