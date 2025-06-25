@@ -123,9 +123,9 @@ export class SeiSmartcontractService {
 
   heartbeat() {
     if (this.web3?.eth) {
-      this.web3.eth.net.isListening().then((isListening: boolean) => {
-        this.logger.log('heartbeat isListening: ' + isListening);
-      }).catch(err => this.logger.warn('heartbeat err: ' + err.message));
+      this.web3.eth.getBlockNumber().then(data => {
+        this.logger.log('heartbeat getBlockNumber: ' + data);
+      }).catch(err => this.logger.warn('heartbeat err: ' + err?.message));
     }
   }
 
