@@ -36,6 +36,7 @@ export class EthSmartcontractService {
     private readonly seiSmartcontractService: SeiSmartcontractService,
   ) {
     this.initWeb3();
+    setInterval(() => this.heartbeat(), 30000);
   }
 
   private initWeb3() {
@@ -123,6 +124,14 @@ export class EthSmartcontractService {
     // this.logger.log('listenToEvents subscription: ', this.subscription);
   }
 
+  heartbeat() {
+    if (this.web3?.eth) {
+      this.web3.eth.net.isListening().then((isListening: boolean) => {
+        this.logger.log('heartbeat isListening: ' + isListening);
+      }).catch(err => this.logger.warn('heartbeat err: ' + err.message));
+    }
+  }
+
   async callReadContractMethod(method: string, ...args: any[]) {
     if (!this.contract.methods[method]) {
       throw new NotFoundException('Not found method: ' + method);
@@ -164,7 +173,7 @@ export class EthSmartcontractService {
 
     this.logger.log(
       `callWriteContractMethod ${method} successed! Transaction Hash: ` +
-        receipt.transactionHash,
+      receipt.transactionHash,
     );
     return receipt;
   }
