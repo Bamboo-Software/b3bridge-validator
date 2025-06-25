@@ -123,9 +123,9 @@ export class SeiSmartcontractService {
 
   heartbeat() {
     if (this.web3?.eth) {
-      this.web3.eth.getBlockNumber().then(data => {
-        this.logger.log('heartbeat getBlockNumber: ' + data);
-      }).catch(err => this.logger.warn('heartbeat err: ' + err?.message));
+      this.web3.eth
+        .getBlockNumber()
+        .catch((err) => this.logger.warn('heartbeat err: ' + err?.message));
     }
   }
 
@@ -170,7 +170,7 @@ export class SeiSmartcontractService {
 
     this.logger.log(
       `callWriteContractMethod ${method} successed! Transaction Hash: ` +
-      receipt.transactionHash,
+        receipt.transactionHash,
     );
     return receipt;
   }
