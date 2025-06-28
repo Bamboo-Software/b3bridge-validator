@@ -2,7 +2,7 @@
   "name": "b3bridge-validator",
   "version": "0.0.1",
   "description": "",
-  "author": "Phan Van Loi <loipv792@gmail.com>",
+  "author": "Bamboo Software",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

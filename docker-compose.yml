@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: b3bridge-validator
+    working_dir: /app
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    command: yarn start:prod
