@@ -200,8 +200,9 @@ export class SeiSmartcontractService {
         tokenAddr: tokenMap.address, // tokenType = 0
         // tokenAddr: '0x42B4fdB1888001BB4C06f8BaFfB8a96B56693614', // tokenType =1
         amount: event.returnValues.amount,
-        tokenType: tokenMap.type,
+        // tokenType: tokenMap.type,
         // nonce: nonce + 1,
+        chainId: event.returnValues.chainId,
       };
       args.push(payload);
       return this.ethSmartcontractService.unLockTokenVL(...args);
