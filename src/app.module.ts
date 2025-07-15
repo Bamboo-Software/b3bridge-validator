@@ -4,12 +4,8 @@ import { CoreModule } from './modules/core/core.module';
 import { Module } from '@nestjs/common';
 
 @Module({
-  imports: [
-    SeiModule,
-    EthModule,
-    CoreModule,
-  ],
+  imports: [SeiModule, EthModule, CoreModule],
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}

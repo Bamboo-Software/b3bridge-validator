@@ -3,17 +3,13 @@ https://docs.nestjs.com/modules
 */
 
 import { Global, Module } from '@nestjs/common';
-import { SeiSmartcontractService } from './services/sei-smartcontract.service';
+import { SeiContractService } from './services/sei-contract.service';
 
 @Global()
 @Module({
-    imports: [],
-    controllers: [],
-    providers: [
-        SeiSmartcontractService
-    ],
-    exports: [
-        SeiSmartcontractService
-    ],
+  imports: [],
+  controllers: [],
+  providers: [SeiContractService],
+  exports: [SeiContractService],
 })
-export class SeiModule { }
+export class SeiModule {}

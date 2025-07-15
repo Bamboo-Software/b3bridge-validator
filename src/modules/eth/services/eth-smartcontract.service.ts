@@ -89,7 +89,7 @@ export class EthSmartcontractService {
     );
 
     // Lắng nghe event
-    this.listenToEvents();
+    // this.listenToEvents();
   }
 
   private reconnect() {
