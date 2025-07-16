@@ -9,7 +9,7 @@ import {
   ethTokenMapperConfig,
   ethValidatorConfig,
 } from '@/config';
-import { ethers } from 'ethers';
+import { ethers, getBytes } from 'ethers';
 import { SeiContractService } from '../../sei/services/sei-contract.service';
 
 @Injectable()
@@ -76,26 +76,24 @@ export class EthContractService {
       amount: amount,
       chainId: chainId,
     };
-    this.logger.log('LockedTokenVL payload: ', payload);
     const signature = await this.seiContractService.signMessage(txHash);
-    this.logger.log('LockedTokenVL signature: ', signature);
-    const receipt = await this.seiContractService.mintTokenVL(
+    const tx = await this.seiContractService.mintTokenVL(
       signature as any,
       payload,
     );
-    this.logger.log('LockedTokenVL receipt: ', receipt);
+    this.logger.log('LockedTokenVL successed tx: ', tx);
   }
 
   async unLockTokenVL(signature: string, payload: any) {
     this.logger.log('UnLockTokenVL args: ', signature, payload);
     const tx = await this.contract.unLockTokenVL(signature, payload);
     const receipt = await tx.wait();
-    this.logger.log('UnLockTokenVL receipt: ', receipt);
-    return receipt;
+    this.logger.log('UnLockTokenVL receipt hash: ' + receipt?.hash);
+    return tx;
   }
 
   async signMessage(message: string): Promise<string> {
-    const signResult = await this.validator.signMessage(message);
+    const signResult = await this.validator.signMessage(getBytes(message));
     return signResult;
   }
 }

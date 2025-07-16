@@ -10,7 +10,7 @@ import {
   seiTokenMapperConfig,
   seiValidatorConfig,
 } from '@/config/';
-import { concat, ethers, keccak256, Signature, toUtf8Bytes } from 'ethers';
+import { ethers, getBytes } from 'ethers';
 import { EthContractService } from '../../eth/services/eth-contract.service';
 
 @Injectable()
@@ -45,10 +45,10 @@ export class SeiContractService {
     this.logger.log('Sei contract initialized');
 
     this.listenToEvents();
-    this.signMessage(
-      '0x366ada605d8b9dff6e5666b718424c8dfa816be49572aad15a3d84b2629b5c60',
-    );
-    // 0x13b10b125153868f791cbc625d02414634de4e57c36ec99797701a005ff1cc670c49376623e6399b1ee75dcd5b572a23ccca2ef1de6500ade5c8bf9be3d132921c
+    // this.signMessage(
+    //   '0x315e495498b3904f8ca332df1a9028d058d723b06d749dd83e41183fc113c231',
+    // );
+    // 0x7fa79918a0040cdff3314b0a50e72f9294e1eb3ed5ebd57de35b136eb29ba79238377623aa2510ef99ec686e7de6a5aa0db987eca125f4a05e14546b81c0a4c91b
   }
 
   listenToEvents() {
@@ -85,22 +85,15 @@ export class SeiContractService {
       amount: amount,
       chainId: chainId,
     };
-    this.logger.log('BurnTokenVL payload: ', payload);
     const signature = await this.ethContractService.signMessage(txHash);
-    this.logger.log('BurnTokenVL signature: ', signature);
-    const receipt = await this.ethContractService.unLockTokenVL(
-      signature,
-      payload,
-    );
-    this.logger.log('BurnTokenVL receipt: ', receipt);
-    return receipt;
+    const tx = await this.ethContractService.unLockTokenVL(signature, payload);
+    this.logger.log('BurnTokenVL successed tx: ', tx);
+    return tx;
   }
 
   async signMessage(message: string) {
     // hash the message
-    // const messageHash = keccak256();
-    this.logger.log('Message: ' + message);
-    const signResult = await this.validator.signMessage(toUtf8Bytes(message));
+    const signResult = await this.validator.signMessage(getBytes(message));
     this.logger.log('Sign result: ' + signResult);
     return signResult;
   }
@@ -109,7 +102,7 @@ export class SeiContractService {
     this.logger.log('MintTokenVL args: ', signature, payload);
     const tx = await this.contract.mintTokenVL(signature, payload);
     const receipt = await tx.wait();
-    this.logger.log('MintTokenVL receipt: ', receipt);
-    return receipt;
+    this.logger.log('MintTokenVL receipt hash: ' + receipt?.hash);
+    return tx;
   }
 }
