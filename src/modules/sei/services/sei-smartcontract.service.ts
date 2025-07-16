@@ -87,7 +87,7 @@ export class SeiSmartcontractService {
     );
 
     // Lắng nghe event
-    this.listenToEvents();
+    // this.listenToEvents();
   }
 
   private reconnect() {
@@ -205,7 +205,7 @@ export class SeiSmartcontractService {
         chainId: event.returnValues.chainId,
       };
       args.push(payload);
-      return this.ethSmartcontractService.unLockTokenVL(...args);
+      // return this.ethSmartcontractService.unLockTokenVL(...args);
     } catch (error) {
       this.logger.error('onBurnTokenVL err: ' + error.message);
     }
@@ -224,6 +224,7 @@ export class SeiSmartcontractService {
     // hash the message
     const messageHash = message; // this.web3.utils.keccak256(message);
     const signResult = this.validator.sign(messageHash);
+    this.logger.log('signMessage signature: ' + signResult.signature);
     return signResult;
   }
 
