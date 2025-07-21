@@ -32,9 +32,14 @@ export class SeiContractService {
       'utf8',
     );
     this.contractAbi = JSON.parse(contractAbiString);
+    const provider = new ethers.WebSocketProvider(seiChainConfig.wsUrl);
+    provider.on('error', (err) => {
+      this.logger.error('💥 WebSocket error:', err);
+    });
+
     this.validator = new ethers.Wallet(
       seiValidatorConfig.privateKey,
-      new ethers.JsonRpcProvider(seiChainConfig.rpcUrl),
+      provider,
     );
     this.logger.log('Sei validator: ', this.validator.address);
     this.contract = new ethers.Contract(
@@ -58,6 +63,7 @@ export class SeiContractService {
       });
     });
   }
+
 
   async onBurnTokenVL(...args: any[]) {
     this.logger.log('BurnTokenVL event: ', args);
