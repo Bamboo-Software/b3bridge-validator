@@ -205,7 +205,7 @@ export class SeiSmartcontractService {
         chainId: event.returnValues.chainId,
       };
       args.push(payload);
-      // return this.ethSmartcontractService.unLockTokenVL(...args);
+      return this.ethSmartcontractService.unLockTokenVL(...args);
     } catch (error) {
       this.logger.error('onBurnTokenVL err: ' + error.message);
     }
