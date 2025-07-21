@@ -121,6 +121,12 @@
                 "type": "uint256"
             },
             {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "fee",
+                "type": "uint256"
+            },
+            {
                 "indexed": true,
                 "internalType": "address",
                 "name": "sourceBridge",
@@ -605,6 +611,24 @@
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "getEthUsdPrice",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "ethPrice",
+                "type": "uint256"
+            },
+            {
+                "internalType": "int64",
+                "name": "timestamp",
+                "type": "int64"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "internalType": "address",
@@ -647,6 +671,30 @@
             }
         ],
         "name": "getFeeCCIP",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "tokenAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "getFeeEthBridge",
         "outputs": [
             {
                 "internalType": "uint256",
