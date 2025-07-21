@@ -33,17 +33,17 @@ export class EthContractService {
       'utf8',
     );
     this.contractAbi = JSON.parse(contractAbiString);
-
+    const provider = new ethers.JsonRpcProvider(ethChainConfig.rpcUrl);
     this.validator = new ethers.Wallet(
       ethValidatorConfig.privateKey,
-      new ethers.JsonRpcProvider(ethChainConfig.rpcUrl),
+      provider,
     );
     this.logger.log('Eth validator: ', this.validator.address);
-    const provider = new ethers.JsonRpcProvider(ethChainConfig.rpcUrl);
+
     this.contract = new ethers.Contract(
       ethChainConfig.contractAddress,
       this.contractAbi,
-      provider,
+      this.validator,
     );
     this.logger.log('Eth contract initialized');
     this.listenToEvents();
