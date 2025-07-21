@@ -87,7 +87,7 @@ export class SeiSmartcontractService {
     );
 
     // Lắng nghe event
-    // this.listenToEvents();
+    this.listenToEvents();
   }
 
   private reconnect() {
@@ -170,7 +170,7 @@ export class SeiSmartcontractService {
 
     this.logger.log(
       `callWriteContractMethod ${method} successed! Transaction Hash: ` +
-        receipt.transactionHash,
+      receipt.transactionHash,
     );
     return receipt;
   }

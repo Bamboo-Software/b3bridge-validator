@@ -13,7 +13,6 @@ import {
   ethChainConfig,
   ethTokenMapperConfig,
   ethValidatorConfig,
-  seiTokenMapperConfig,
 } from '@/config';
 import { readFileSync } from 'fs';
 import Web3, { Contract, Web3Account, ContractAbi, SignResult } from 'web3';
@@ -89,7 +88,7 @@ export class EthSmartcontractService {
     );
 
     // Lắng nghe event
-    // this.listenToEvents();
+    this.listenToEvents();
   }
 
   private reconnect() {
@@ -173,7 +172,7 @@ export class EthSmartcontractService {
 
     this.logger.log(
       `callWriteContractMethod ${method} successed! Transaction Hash: ` +
-        receipt.transactionHash,
+      receipt.transactionHash,
     );
     return receipt;
   }
