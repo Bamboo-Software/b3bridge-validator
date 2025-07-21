@@ -7,7 +7,7 @@ import { SeiContractService } from './services/sei-contract.service';
 import { appConfig } from '../../config';
 import { SeiSmartcontractService } from './services/sei-smartcontract.service';
 
-const services = appConfig.useLibEthers ? [SeiSmartcontractService] : [SeiContractService];
+const services = appConfig.useLibEthers ? [SeiContractService] : [SeiSmartcontractService];
 
 @Global()
 @Module({
