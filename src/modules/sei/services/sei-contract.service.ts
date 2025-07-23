@@ -45,10 +45,10 @@ export class SeiContractService {
       setTimeout(() => this.connect(), 3000);
     });
 
-    provider.on('close', () => {
-      this.logger.warn('🔌 Provider closed. Reconnecting...');
-      setTimeout(() => this.connect(), 3000);
-    });
+    // provider.on('close', () => {
+    //   this.logger.warn('🔌 Provider closed. Reconnecting...');
+    //   setTimeout(() => this.connect(), 3000);
+    // });
     this.validator = new ethers.Wallet(seiValidatorConfig.privateKey, provider);
     this.logger.log('Sei validator: ', this.validator.address);
     this.contract = new ethers.Contract(
