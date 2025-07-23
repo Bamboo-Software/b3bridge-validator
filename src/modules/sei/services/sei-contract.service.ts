@@ -72,6 +72,7 @@ export class SeiContractService {
       sender,
       destWalletAddress,
       amount,
+      fee,
       sourceBridge,
       wTokenAddress,
       chainId,
