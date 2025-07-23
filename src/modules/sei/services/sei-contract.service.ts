@@ -32,28 +32,31 @@ export class SeiContractService {
       'utf8',
     );
     this.contractAbi = JSON.parse(contractAbiString);
+    this.connect();
+  }
+
+  connect() {
+    if (this.contract) {
+      this.contract.removeAllListeners();
+    }
     const provider = new ethers.WebSocketProvider(seiChainConfig.wsUrl);
     provider.on('error', (err) => {
       this.logger.error('💥 WebSocket error:', err);
+      setTimeout(() => this.connect(), 3000);
     });
 
-    this.validator = new ethers.Wallet(
-      seiValidatorConfig.privateKey,
-      provider,
-    );
+    provider.on('close', () => {
+      this.logger.warn('🔌 Provider closed. Reconnecting...');
+      setTimeout(() => this.connect(), 3000);
+    });
+    this.validator = new ethers.Wallet(seiValidatorConfig.privateKey, provider);
     this.logger.log('Sei validator: ', this.validator.address);
     this.contract = new ethers.Contract(
       seiChainConfig.contractAddress,
       this.contractAbi,
       this.validator,
     );
-    this.logger.log('Sei contract initialized');
-
     this.listenToEvents();
-    // this.signMessage(
-    //   '0x315e495498b3904f8ca332df1a9028d058d723b06d749dd83e41183fc113c231',
-    // );
-    // 0x7fa79918a0040cdff3314b0a50e72f9294e1eb3ed5ebd57de35b136eb29ba79238377623aa2510ef99ec686e7de6a5aa0db987eca125f4a05e14546b81c0a4c91b
   }
 
   listenToEvents() {
@@ -63,7 +66,6 @@ export class SeiContractService {
       });
     });
   }
-
 
   async onBurnTokenVL(...args: any[]) {
     this.logger.log('BurnTokenVL event: ', args);
