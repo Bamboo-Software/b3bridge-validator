@@ -34,11 +34,8 @@ export class EthContractService {
     );
     this.contractAbi = JSON.parse(contractAbiString);
     const provider = new ethers.JsonRpcProvider(ethChainConfig.rpcUrl);
-    this.validator = new ethers.Wallet(
-      ethValidatorConfig.privateKey,
-      provider,
-    );
-    this.logger.log('Eth validator: ', this.validator.address);
+    this.validator = new ethers.Wallet(ethValidatorConfig.privateKey, provider);
+    this.logger.log('Eth validator: ' + this.validator.address);
 
     this.contract = new ethers.Contract(
       ethChainConfig.contractAddress,

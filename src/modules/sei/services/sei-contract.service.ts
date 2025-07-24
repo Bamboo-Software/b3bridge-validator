@@ -20,6 +20,7 @@ export class SeiContractService {
   private contractAbi: any;
 
   private contract: ethers.Contract;
+  private contractWs: ethers.Contract;
 
   private validator: ethers.Wallet;
 
@@ -32,35 +33,43 @@ export class SeiContractService {
       'utf8',
     );
     this.contractAbi = JSON.parse(contractAbiString);
-    this.connect();
-  }
 
-  connect() {
-    if (this.contract) {
-      this.contract.removeAllListeners();
-    }
-    const provider = new ethers.WebSocketProvider(seiChainConfig.wsUrl);
-    provider.on('error', (err) => {
-      this.logger.error('💥 WebSocket error:', err);
-      setTimeout(() => this.connect(), 3000);
-    });
-
-    // provider.on('close', () => {
-    //   this.logger.warn('🔌 Provider closed. Reconnecting...');
-    //   setTimeout(() => this.connect(), 3000);
-    // });
+    const provider = new ethers.JsonRpcProvider(seiChainConfig.rpcUrl);
     this.validator = new ethers.Wallet(seiValidatorConfig.privateKey, provider);
-    this.logger.log('Sei validator: ', this.validator.address);
+    this.logger.log('Sei validator: ' + this.validator.address);
+
     this.contract = new ethers.Contract(
       seiChainConfig.contractAddress,
       this.contractAbi,
       this.validator,
     );
-    this.listenToEvents();
+    this.logger.log('Eth contract initialized');
+
+    this.connect();
   }
 
-  listenToEvents() {
-    this.contract.on('BurnTokenVL', (...args: any[]) => {
+  connect() {
+    if (this.contractWs) {
+      this.contractWs.removeAllListeners();
+    }
+    const provider = new ethers.WebSocketProvider(seiChainConfig.wsUrl);
+    provider.on('error', (err) => {
+      this.logger.error('💥 WebSocket error:', err);
+      setTimeout(() => this.connect(), 500);
+    });
+
+    provider.on('debug', (message: any) => {
+      this.logger.log('🔌 WebSocket debug: ', message);
+    });
+
+    const signer = new ethers.Wallet(seiValidatorConfig.privateKey, provider);
+    this.logger.log('Sei signer: ' + signer.address);
+    this.contractWs = new ethers.Contract(
+      seiChainConfig.contractAddress,
+      this.contractAbi,
+      signer,
+    );
+    this.contractWs.on('BurnTokenVL', (...args: any[]) => {
       this.onBurnTokenVL(...args).catch((error) => {
         this.logger.error('BurnTokenVL error: ', error);
       });
