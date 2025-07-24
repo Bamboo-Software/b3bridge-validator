@@ -363,6 +363,12 @@
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes32",
+                "name": "messageId",
+                "type": "bytes32"
             }
         ],
         "name": "MintTokenCCIP",
@@ -388,6 +394,12 @@
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes32",
+                "name": "txKey",
+                "type": "bytes32"
             }
         ],
         "name": "MintedTokenVL",
