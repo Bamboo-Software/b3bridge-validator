@@ -24,6 +24,8 @@ export class SeiContractService {
 
   private validator: ethers.Wallet;
 
+  private heartbeatInterval: any;
+
   constructor(
     @Inject(forwardRef(() => EthContractService))
     private readonly ethContractService: EthContractService,
@@ -52,6 +54,10 @@ export class SeiContractService {
     if (this.contractWs) {
       this.contractWs.removeAllListeners();
     }
+    if (this.heartbeatInterval) {
+      clearTimeout(this.heartbeatInterval);
+      this.heartbeatInterval = null;
+    }
     const provider = new ethers.WebSocketProvider(seiChainConfig.wsUrl);
     provider.on('error', (err) => {
       this.logger.error('💥 WebSocket error:', err);
@@ -74,6 +80,17 @@ export class SeiContractService {
         this.logger.error('BurnTokenVL error: ', error);
       });
     });
+    this.heartbeatInterval = setInterval(() => {
+      provider
+        .getBlockNumber()
+        // .then((blockNumber) =>
+        //   this.logger.debug('heartbeatInterval blockNumber = ' + blockNumber),
+        // )
+        .catch((err: Error) =>
+          this.logger.warn('heartbeatInterval err: ' + err.message),
+        );
+    }, 60000);
+
   }
 
   async onBurnTokenVL(...args: any[]) {
