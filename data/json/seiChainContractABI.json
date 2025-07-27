@@ -872,6 +872,11 @@
                     },
                     {
                         "internalType": "uint256",
+                        "name": "fee",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
                         "name": "chainId",
                         "type": "uint256"
                     }
@@ -932,6 +937,11 @@
             {
                 "internalType": "uint256",
                 "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "fee",
                 "type": "uint256"
             },
             {
