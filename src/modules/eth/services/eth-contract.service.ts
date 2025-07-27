@@ -56,8 +56,15 @@ export class EthContractService {
 
   async onLockedTokenVL(...args: any[]) {
     const event = args[args.length - 1];
-    const [sender, receiverAddress, tokenAddr, amount, destAddress, chainId] =
-      event.args;
+    const [
+      sender,
+      receiverAddress,
+      tokenAddr,
+      amount,
+      fee,
+      destAddress,
+      chainId,
+    ] = event.args;
     const txHash = event?.log?.transactionHash || args[0];
     const tokenMap = ethTokenMapperConfig[tokenAddr] || null;
     if (!tokenMap) {
@@ -71,6 +78,7 @@ export class EthContractService {
       to: receiverAddress,
       tokenAddr: tokenMap.address,
       amount: amount,
+      fee,
       chainId: chainId,
     };
     const signature = await this.seiContractService.signMessage(txHash);

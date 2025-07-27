@@ -90,7 +90,6 @@ export class SeiContractService {
           this.logger.warn('heartbeatInterval err: ' + err.message),
         );
     }, 60000);
-
   }
 
   async onBurnTokenVL(...args: any[]) {
@@ -118,6 +117,7 @@ export class SeiContractService {
       to: destWalletAddress,
       tokenAddr: tokenMap.address,
       amount: amount,
+      fee,
       chainId: chainId,
     };
     const signature = await this.ethContractService.signMessage(txHash);
