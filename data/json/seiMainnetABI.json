@@ -7,16 +7,6 @@
                 "type": "address"
             },
             {
-                "internalType": "address",
-                "name": "_sourceBridge",
-                "type": "address"
-            },
-            {
-                "internalType": "uint64",
-                "name": "_sourceChainSelector",
-                "type": "uint64"
-            },
-            {
                 "internalType": "address[]",
                 "name": "_validators",
                 "type": "address[]"
@@ -506,6 +496,16 @@
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "sourceBridge",
+                "type": "address"
+            },
+            {
+                "internalType": "uint64",
+                "name": "sourceChainSelector",
+                "type": "uint64"
             }
         ],
         "name": "burnTokenCCIP",
@@ -680,6 +680,16 @@
                 "internalType": "bytes32",
                 "name": "tokenId",
                 "type": "bytes32"
+            },
+            {
+                "internalType": "address",
+                "name": "sourceBridge",
+                "type": "address"
+            },
+            {
+                "internalType": "uint64",
+                "name": "sourceChainSelector",
+                "type": "uint64"
             }
         ],
         "name": "getFeeCCIP",
@@ -872,6 +882,11 @@
                     },
                     {
                         "internalType": "uint256",
+                        "name": "fee",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
                         "name": "chainId",
                         "type": "uint256"
                     }
@@ -932,6 +947,11 @@
             {
                 "internalType": "uint256",
                 "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "fee",
                 "type": "uint256"
             },
             {
@@ -1135,32 +1155,6 @@
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "sourceBridge",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "sourceChainSelector",
-        "outputs": [
-            {
-                "internalType": "uint64",
-                "name": "",
-                "type": "uint64"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
         "inputs": [
             {
                 "internalType": "bytes4",
@@ -1194,6 +1188,25 @@
                 "internalType": "uint256",
                 "name": "",
                 "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "tokenAddressToId",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
             }
         ],
         "stateMutability": "view",
@@ -1284,24 +1297,6 @@
             }
         ],
         "name": "transferTokenOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_sourceBridge",
-                "type": "address"
-            },
-            {
-                "internalType": "uint64",
-                "name": "_sourceChainSelector",
-                "type": "uint64"
-            }
-        ],
-        "name": "updateSourceBridge",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
